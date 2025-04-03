@@ -36,32 +36,24 @@ public class Player : MonoBehaviour
     
     public void Heal(int healAmount)
     {
-
-        // Check if player needs healing
-        if (currentHealth < maxHealth)
+        // Add healing amount
+        currentHealth += healAmount;
+        if (currentHealth > maxHealth) currentHealth = maxHealth;
+        if (currentHealth < 0)
         {
-            // Add healing amount
-            currentHealth += healAmount;
+            //Debug.Log($"{currentHealth}, {healAmount}");
+            currentHealth = 0;
+        }    
             
-            // Make sure we don't exceed max health
-            if (currentHealth > maxHealth)
-            {
-                currentHealth = maxHealth;
-            }
-            
-            Debug.Log($"Healed for {healAmount}. Current health: {currentHealth}/{maxHealth}");
-            UpdateStatsUI();
-        }
+        Debug.Log($"Healed for {healAmount}. Current health: {currentHealth}/{maxHealth}");
+        UpdateStatsUI();
     }
 
     public bool Charge(int chargeAmount)
     {
-        if (chargeAmount <= gold)
-        {
-            gold -= chargeAmount;
-            return true;
-        }
-        return false;
+        if (chargeAmount > gold) return false;
+        gold -= chargeAmount;
+        return true;
     }
     
     private void Start()

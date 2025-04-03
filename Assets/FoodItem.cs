@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 public class FoodItem : MonoBehaviour, IPointerClickHandler
 {
-    [SerializeField] private int healAmount = 20;
+    [SerializeField] private int healAmount = 0;
     [SerializeField] private int price = 0;
     private Player playerReference;
     
