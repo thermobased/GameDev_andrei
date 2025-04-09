@@ -10,6 +10,9 @@ public class CollectibleItem : MonoBehaviour
     private TextMeshProUGUI hoeCountText;
     private TextMeshProUGUI shroomCountText;
 
+    [SerializeField] private AudioClip pickupSound;
+    [SerializeField] private AudioClip allPickedup;
+    [SerializeField] [Range(0f, 1f)] private float volume = 1f;
     void Start()
     {
         keyCountText = GameObject.Find("KeysAmount").GetComponent<TextMeshProUGUI>();
@@ -34,6 +37,11 @@ public class CollectibleItem : MonoBehaviour
             }
             
             //Debug.Log($"{keyCount}, {hoeCount}, {shroomCount}");
+            if (pickupSound != null)
+            {
+                if(hoeCount+keyCount+shroomCount == 12){AudioSource.PlayClipAtPoint(allPickedup, transform.position, volume);}
+                else {AudioSource.PlayClipAtPoint(pickupSound, transform.position, volume);}
+            }
             UpdateCounterText();
             Destroy(gameObject);
         }
