@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 472acb5cb3e940f4698b9ea5c331b679, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: 
+  id: 11
+  displayName: Sword
+  damage: 18
+  staminaCost: 10
+  durability: 150
+  cost: 1200
+  sprite: {fileID: -1670773418415759112, guid: cccc849204d53d3479806217e1273717, type: 3}
