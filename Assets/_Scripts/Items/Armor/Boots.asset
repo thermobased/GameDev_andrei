@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf8e08a54bf4e058cd335eaa5fb2aff, type: 3}
+  m_Name: Boots
+  m_EditorClassIdentifier: 
+  id: 201
+  displayName: Armored Boots
+  itemType: 1
+  cost: 0
+  icon: {fileID: 3268820022604524643, guid: d5fdce071c840254baca084670dcd5b7, type: 3}
+  description: 
+  isStackable: 0
+  maxStackSize: 1
+  protection: 0
+  durability: 0
