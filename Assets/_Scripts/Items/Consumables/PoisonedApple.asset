@@ -18,7 +18,7 @@ MonoBehaviour:
   cost: 0
   icon: {fileID: -451333150565827036, guid: f0c4dd54479f0fd4ab3336817a90c263, type: 3}
   description: 
-  isStackable: 0
+  isStackable: 1
   maxStackSize: 100
   protection: 0
   durability: 0
