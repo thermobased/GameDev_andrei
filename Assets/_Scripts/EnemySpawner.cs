@@ -4,7 +4,7 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     [Header("Spawn Settings")]
-    [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private GameObject[] enemyPrefabs;
     [SerializeField] private float minSpawnInterval = 1f;
     [SerializeField] private float maxSpawnInterval = 3f;
     [SerializeField] private int maxEnemies = 10;
@@ -54,7 +54,6 @@ public class EnemySpawner : MonoBehaviour
                 SpawnEnemy();
             }
             
-            // Wait for random time between min and max interval
             float waitTime = Random.Range(minSpawnInterval, maxSpawnInterval);
             yield return new WaitForSeconds(waitTime);
         }
@@ -62,7 +61,6 @@ public class EnemySpawner : MonoBehaviour
 
     private void SpawnEnemy()
     {
-        // Calculate a random position within the spawn area
         Vector2 randomOffset = new Vector2(
             Random.Range(-spawnAreaSize.x / 2, spawnAreaSize.x / 2),
             Random.Range(-spawnAreaSize.y / 2, spawnAreaSize.y / 2)
@@ -70,10 +68,10 @@ public class EnemySpawner : MonoBehaviour
         
         Vector3 spawnPosition = spawnAreaTransform.position + new Vector3(randomOffset.x, randomOffset.y, 0);
         
-        // Instantiate enemy at random position
-        GameObject newEnemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        GameObject selectedEnemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
         
-        // Track enemy count
+        GameObject newEnemy = Instantiate(selectedEnemyPrefab, spawnPosition, Quaternion.identity);
+        
         currentEnemyCount++;
         
     }
@@ -82,8 +80,7 @@ public class EnemySpawner : MonoBehaviour
     {
         currentEnemyCount--;
     }
-
-    // Visualize spawn area in the editor
+    
     private void OnDrawGizmos()
     {
         if (visualizeSpawnArea)
@@ -97,4 +94,3 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 }
-
