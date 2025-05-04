@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8594914991792315612}
   - component: {fileID: 6972736569159418433}
+  - component: {fileID: 767399176120740014}
   - component: {fileID: 2321755322931553229}
   - component: {fileID: 9198441119350519113}
-  - component: {fileID: 767399176120740014}
   m_Layer: 0
   m_Name: Bomb
   m_TagString: Untagged
@@ -90,6 +90,31 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &767399176120740014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1416497723376716356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26c2e71b832fb8c489e2d3da45019279, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageAmount: 50
+  effectPrefab: {fileID: 3919111000351753760, guid: d396a9041b724f244af2f9539455bdf5, type: 3}
+  affectedLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  triggeredLayers:
+    serializedVersion: 2
+    m_Bits: 72
+  projectileIcon: {fileID: 9092702341752328072, guid: 88676cf5553920340a722cc0d9381725, type: 3}
+  explosionRadius: 2.5
+  explosionForce: 15
+  upwardsModifier: 2
+  torqueForce: 33
 --- !u!50 &2321755322931553229
 Rigidbody2D:
   serializedVersion: 5
@@ -151,28 +176,5 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
---- !u!114 &767399176120740014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1416497723376716356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26c2e71b832fb8c489e2d3da45019279, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  explosionRadius: 2.5
-  explosionForce: 15
-  upwardsModifier: 2
-  torqueForce: 33
-  explosionDamage: 56.8
-  affectedLayers:
-    serializedVersion: 2
-    m_Bits: 9
-  triggeredLayers:
-    serializedVersion: 2
-    m_Bits: 65
+  m_Offset: {x: 0, y: -9.934554}
+  m_Radius: 20.634035

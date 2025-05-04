@@ -1,35 +1,65 @@
 using UnityEngine;
+using System.Collections;
 
-public class Bomb : Projectile
+public class Nuke : Projectile
 {
-    [Header("Explosion Settings")]
-    [SerializeField] private float explosionRadius = 5f;
-    [SerializeField] private float explosionForce = 700f;
+    [Header("Nuke Settings")]
+    [SerializeField] private float explosionRadius = 3f;
+    [SerializeField] private float explosionForce = 500f;
     [SerializeField] private float upwardsModifier = 3f;
+    [SerializeField] private float fallSpeed = 1f;
     [SerializeField] private float torqueForce = 2000f;
-    
-    protected override void OnCollisionEnter2D(Collision2D col)
+    [SerializeField] private float maxFlightTime = 5f;
+    [SerializeField] private float delayBeforeDamage = 2f;
+
+    private Rigidbody2D rb;
+    private float flightTimer;
+    private bool hasExploded = false;
+
+    private void Awake()
     {
-        base.OnCollisionEnter2D(col);
+        rb = GetComponent<Rigidbody2D>();
+        rb.gravityScale = 0f;
     }
 
-    protected override void Activate()
+    private void Update()
     {
+        if (hasExploded) return;
+
+        rb.linearVelocity = new Vector2(0f, -fallSpeed);
+        flightTimer += Time.deltaTime;
+
+        if (flightTimer >= maxFlightTime)
+        {
+            StartCoroutine(DelayedExplosion());
+            hasExploded = true;
+        }
+    }
+
+    private IEnumerator DelayedExplosion()
+    {
+        CreateEffect();
+
+        GetComponent<SpriteRenderer>().enabled = false;
+        GetComponent<Collider2D>().enabled = false;
+
+        yield return new WaitForSeconds(delayBeforeDamage);
+
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius, affectedLayers);
         foreach (Collider2D hit in colliders)
         {
             ApplyEffect(hit);
             ApplyDamage(hit);
         }
-        CreateEffect();
+        
         Destroy(gameObject);
     }
 
     protected override void ApplyEffect(Collider2D hit)
     {
-        Rigidbody2D rb = hit.GetComponent<Rigidbody2D>();
-        if (rb == null) return;
-        
+        Rigidbody2D hitRb = hit.GetComponent<Rigidbody2D>();
+        if (hitRb == null) return;
+
         Vector2 direction = hit.transform.position - transform.position;
         float distance = direction.magnitude;
         float forceFactor = 1f - Mathf.Clamp01(distance / explosionRadius);
@@ -37,27 +67,35 @@ public class Bomb : Projectile
         Vector2 forceDirection = direction.normalized;
         forceDirection.y += upwardsModifier * forceFactor;
         forceDirection.Normalize();
-        
+
         Vector2 force = forceDirection * explosionForce * forceFactor;
-        rb.AddForce(force, ForceMode2D.Impulse);
-        
+        hitRb.AddForce(force, ForceMode2D.Impulse);
+
         float randomSign = Random.Range(0, 2) * 2 - 1;
         float rotationalForce = randomSign * torqueForce * forceFactor;
-        rb.AddTorque(rotationalForce, ForceMode2D.Impulse);
+        hitRb.AddTorque(rotationalForce, ForceMode2D.Impulse);
     }
 
     protected override void ApplyDamage(Collider2D hit)
     {
         Enemy enemy = hit.GetComponent<Enemy>();
         if (enemy == null) return;
-        
+
         float distance = Vector2.Distance(transform.position, hit.transform.position);
         float damageFactor = 1f - Mathf.Clamp01(distance / explosionRadius);
         float damage = damageAmount * damageFactor;
-        
+
         enemy.GetDamage(damage);
     }
 
+    protected override void Activate()
+    {
+        if (hasExploded) return;
+
+        StartCoroutine(DelayedExplosion());
+        hasExploded = true;
+    }
+    
     protected override void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;

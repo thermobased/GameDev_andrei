@@ -1,14 +1,16 @@
 using UnityEngine;
 public class Kek : Enemy
 {
-    [SerializeField] private Color explosionColor = Color.green;
+    [SerializeField] protected GameObject effectPrefab;
+    protected virtual void CreateEffect()
+    {
+        if (effectPrefab != null)
+            Instantiate(effectPrefab, transform.position, Quaternion.identity);
+    }
     
     public override void Die()
     {
-        // Create explosion effect with green color
-        CreateExplosionEffect(explosionColor);
-        
-        // Call the base class Die method
+        CreateEffect();
         base.Die();
     }
 }

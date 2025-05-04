@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8792080370416805781}
   - component: {fileID: 2810290333193420064}
   - component: {fileID: 655419475164540309}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Kok
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130,6 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: e6ac90a64c7d9b94aaf827eb1d5719aa, type: 2}
+  effectPrefab: {fileID: 3919111000351753760, guid: a70c67c3422973f4fbdfdb6d8af24d99, type: 3}
 --- !u!60 &655419475164540309
 PolygonCollider2D:
   m_ObjectHideFlags: 0
