@@ -1,3 +1,4 @@
+using _Scripts;
 using UnityEngine;
 
 public class Bomb : Projectile
@@ -7,11 +8,6 @@ public class Bomb : Projectile
     [SerializeField] private float explosionForce = 700f;
     [SerializeField] private float upwardsModifier = 3f;
     [SerializeField] private float torqueForce = 2000f;
-    
-    protected override void OnCollisionEnter2D(Collision2D col)
-    {
-        base.OnCollisionEnter2D(col);
-    }
 
     protected override void Activate()
     {
@@ -48,14 +44,14 @@ public class Bomb : Projectile
 
     protected override void ApplyDamage(Collider2D hit)
     {
-        Enemy enemy = hit.GetComponent<Enemy>();
-        if (enemy == null) return;
+        IDamageable damageable = hit.GetComponent<IDamageable>();
+        if (damageable == null) return;
         
         float distance = Vector2.Distance(transform.position, hit.transform.position);
         float damageFactor = 1f - Mathf.Clamp01(distance / explosionRadius);
         float damage = damageAmount * damageFactor;
         
-        enemy.GetDamage(damage);
+        damageable.GetDamage(damage);
     }
 
     protected override void OnDrawGizmosSelected()

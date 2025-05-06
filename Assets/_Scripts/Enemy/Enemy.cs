@@ -1,7 +1,8 @@
 using UnityEngine;
 using System;
+using _Scripts;
 
-public abstract class Enemy : MonoBehaviour
+public abstract class Enemy : MonoBehaviour, IDamageable
 {
     public static event Action<Enemy> onEnemyDeath;
     [SerializeField] protected EnemyData enemyData;

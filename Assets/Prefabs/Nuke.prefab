@@ -51,10 +51,10 @@ MonoBehaviour:
   effectPrefab: {fileID: 3919111000351753760, guid: 6a2f9e91fe452f645b9e0f6cce7ebb8c, type: 3}
   affectedLayers:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 136
   triggeredLayers:
     serializedVersion: 2
-    m_Bits: 72
+    m_Bits: 200
   projectileIcon: {fileID: 6874730486541766321, guid: a89d93495e2563546a42610d49f99a00, type: 3}
   explosionRadius: 15
   explosionForce: 5

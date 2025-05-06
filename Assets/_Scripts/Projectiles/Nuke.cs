@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using _Scripts;
 
 public class Nuke : Projectile
 {
@@ -78,14 +79,14 @@ public class Nuke : Projectile
 
     protected override void ApplyDamage(Collider2D hit)
     {
-        Enemy enemy = hit.GetComponent<Enemy>();
-        if (enemy == null) return;
+        IDamageable damageable = hit.GetComponent<IDamageable>();
+        if (damageable == null) return;
 
         float distance = Vector2.Distance(transform.position, hit.transform.position);
         float damageFactor = 1f - Mathf.Clamp01(distance / explosionRadius);
         float damage = damageAmount * damageFactor;
 
-        enemy.GetDamage(damage);
+        damageable.GetDamage(damage);
     }
 
     protected override void Activate()
