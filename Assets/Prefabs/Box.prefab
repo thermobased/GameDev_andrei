@@ -9,10 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3603749701798056371}
+  - component: {fileID: 5374820494830114428}
   - component: {fileID: 4355482043081101344}
   - component: {fileID: 3018183657772120269}
   - component: {fileID: 439205320869522970}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34,6 +35,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5374820494830114428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 856409044792102790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 547ce45a039b4f66b22e412d2f282a4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destroyEffect: {fileID: 3919111000351753760, guid: d396a9041b724f244af2f9539455bdf5, type: 3}
+  dropPrefabs:
+  - {fileID: 856409044792102790}
+  - {fileID: 856409044792102790}
+  dropForce: 5
+  dropSpreadAngle: 45
 --- !u!212 &4355482043081101344
 SpriteRenderer:
   m_ObjectHideFlags: 0

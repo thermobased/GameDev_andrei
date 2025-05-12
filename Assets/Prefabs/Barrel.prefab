@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4198555328536502848}
   - component: {fileID: 102266042547551455}
   - component: {fileID: 1937442309569049469}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Barrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49,11 +49,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyEffect: {fileID: 3919111000351753760, guid: 6de7966a978b09845a0653de0bc9c982, type: 3}
   explosionEffect: {fileID: 3919111000351753760, guid: d396a9041b724f244af2f9539455bdf5, type: 3}
-  explosionRadius: 4.65
-  explosionForce: 700
+  explosionRadius: 4.47
+  explosionForce: 696.7
   upwardsModifier: 3
   torqueForce: 2000
-  damageAmount: 2
+  damageAmount: 50
   affectedLayers:
     serializedVersion: 2
     m_Bits: 8

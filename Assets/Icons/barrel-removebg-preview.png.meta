@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      barrel-removebg-preview_0: -8016465059982305329
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

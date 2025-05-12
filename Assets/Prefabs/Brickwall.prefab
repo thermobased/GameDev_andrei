@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 932237590472080007}
   - component: {fileID: 8302530838085346241}
   - component: {fileID: 1087711359220145745}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Brickwall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
