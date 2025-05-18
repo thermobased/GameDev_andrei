@@ -130,6 +130,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: e6ac90a64c7d9b94aaf827eb1d5719aa, type: 2}
+  damageTextPrefab: {fileID: 4353625885865353605, guid: 3b5b2603b3193e94094de6a7fe5c7b83, type: 3}
+  damageTextColor: {r: 1, g: 1, b: 1, a: 1}
+  damageTintDuration: 0.15
+  damageTintColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   effectPrefab: {fileID: 3919111000351753760, guid: a70c67c3422973f4fbdfdb6d8af24d99, type: 3}
 --- !u!60 &655419475164540309
 PolygonCollider2D:

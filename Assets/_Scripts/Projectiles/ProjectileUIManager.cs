@@ -7,6 +7,7 @@ public class ProjectileUIManager : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Button switchButton;
     [SerializeField] private Image projectileIcon;
+    [SerializeField] private TextMeshProUGUI quantityText;
     
     [Header("Icon Settings")]
     [SerializeField] private float maxIconSize = 64f;
@@ -25,6 +26,11 @@ public class ProjectileUIManager : MonoBehaviour
         if (spawner != null)
         {
             spawner.OnProjectileTypeChanged += UpdateUI;
+
+            // Add this to update the UI initially
+            var type = ProjectileInventory.Instance.GetProjectileType();
+            var data = spawner.GetProjectileData(type);
+            UpdateUI(type, data.icon);
         }
         
         if (projectileIcon != null)
@@ -39,9 +45,54 @@ public class ProjectileUIManager : MonoBehaviour
                 rectTransform.pivot = new Vector2(0.5f, 0.5f);
             }
         }
+        
+        // Subscribe to projectile inventory changes
+        if (ProjectileInventory.Instance != null)
+        {
+            ProjectileInventory.Instance.OnProjectileQuantityChanged += OnProjectileQuantityChanged;
+
+            UpdateProjectileQuantity(
+                ProjectileInventory.Instance.GetProjectileType(),
+                ProjectileInventory.Instance.GetProjectileQuantity(ProjectileInventory.Instance.GetProjectileType())
+            );
+        }
+        
+        // Initial UI update
+        UpdateProjectileQuantity(ProjectileInventory.Instance.GetProjectileType(), 
+                                ProjectileInventory.Instance.GetProjectileQuantity(ProjectileInventory.Instance.GetProjectileType()));
     }
     
-    public void UpdateUI(ProjectileType type, Sprite icon)
+    private void OnDestroy()
+    {
+        // Unsubscribe when destroyed
+        if (ProjectileInventory.Instance != null)
+            ProjectileInventory.Instance.OnProjectileQuantityChanged -= OnProjectileQuantityChanged;
+    }
+    
+    private void OnProjectileQuantityChanged(ProjectileType data, int quantity)
+    {
+        if (data == ProjectileInventory.Instance.GetCurrentProjectileType())
+        {
+            UpdateProjectileQuantity(data, quantity);
+        }
+    }
+    
+    private void UpdateProjectileQuantity(ProjectileType data, int quantity)
+    {
+        if (quantityText != null)
+        {
+            if (data == ProjectileType.Bomb)
+            {
+                quantityText.text = "∞"; // Infinity symbol for unlimited basic projectiles
+            }
+            else
+            {
+                quantityText.text = quantity.ToString();
+            }
+        }
+    }
+    
+    public void UpdateUI(ProjectileType data, Sprite icon)
     {
         if (projectileIcon != null && icon != null)
         {
@@ -53,6 +104,9 @@ public class ProjectileUIManager : MonoBehaviour
                 ResizeIconToFit(icon);
             }
         }
+        
+        // Update the quantity display
+        UpdateProjectileQuantity(data, ProjectileInventory.Instance.GetProjectileQuantity(data));
     }
     
     private void ResizeIconToFit(Sprite icon)

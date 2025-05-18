@@ -2,17 +2,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
+using UnityEngine.Serialization;
 
 public class ProjectileSpawner : MonoBehaviour
 {
     [Header("Projectile Settings")]
     [SerializeField] private List<ProjectileData> projectilePrefabs = new List<ProjectileData>();
-    [SerializeField] private ProjectileType currentProjectileType = ProjectileType.Bomb;
+    [SerializeField] private ProjectileType currentProjectileData = ProjectileType.Bomb;
     
     [Header("References")]
     [SerializeField] private Camera mainCamera;
     [SerializeField] private Button switchProjectileButton;
     [SerializeField] private Image currentProjectileIcon;
+    [SerializeField] private TextMeshProUGUI quantityText;
     
     [Header("UI Settings")]
     [SerializeField] private bool ignoreFullscreenCanvas = true;
@@ -35,9 +38,30 @@ public class ProjectileSpawner : MonoBehaviour
                 uiElementsToCheck.Add(buttonRect);
             }
         }
+        
+        // Subscribe to inventory quantity changes
+        if (ProjectileInventory.Instance != null)
+        {
+            ProjectileInventory.Instance.OnProjectileQuantityChanged += UpdateQuantityDisplay;
+        }
             
-        // Set initial icon
+        // Set initial UI
         UpdateProjectileIcon();
+        UpdateQuantityDisplay(currentProjectileData, ProjectileInventory.Instance?.GetProjectileQuantity(currentProjectileData) ?? 0);
+    }
+    
+    private void OnDestroy()
+    {
+        // Unsubscribe from events
+        if (ProjectileInventory.Instance != null)
+        {
+            ProjectileInventory.Instance.OnProjectileQuantityChanged -= UpdateQuantityDisplay;
+        }
+        
+        if (switchProjectileButton != null)
+        {
+            switchProjectileButton.onClick.RemoveListener(SwitchProjectileType);
+        }
     }
 
     private void Update()
@@ -53,6 +77,14 @@ public class ProjectileSpawner : MonoBehaviour
 
     private void SpawnProjectile()
     {
+        // Check if we can use this projectile from inventory
+        if (ProjectileInventory.Instance != null && 
+            !ProjectileInventory.Instance.UseProjectile(currentProjectileData))
+        {
+            Debug.Log($"Not enough {currentProjectileData} projectiles!");
+            return;
+        }
+        
         Vector3 mousePos = Input.mousePosition;
         Vector3 worldPosition = mainCamera.ScreenToWorldPoint(mousePos);
         worldPosition.z = 0;
@@ -64,7 +96,7 @@ public class ProjectileSpawner : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"No prefab found for projectile type: {currentProjectileType}");
+            Debug.LogWarning($"No prefab found for projectile type: {currentProjectileData}");
         }
     }
     
@@ -72,7 +104,7 @@ public class ProjectileSpawner : MonoBehaviour
     {
         foreach (var data in projectilePrefabs)
         {
-            if (data.type == currentProjectileType)
+            if (data.type == currentProjectileData)
                 return data.prefab;
         }
         return null;
@@ -82,13 +114,19 @@ public class ProjectileSpawner : MonoBehaviour
     {
         ProjectileType[] projectileTypes = (ProjectileType[])System.Enum.GetValues(typeof(ProjectileType));
         
-        int currentIndex = (int)currentProjectileType;
+        int currentIndex = (int)currentProjectileData;
         int nextIndex = (currentIndex + 1) % projectileTypes.Length;
         
-        currentProjectileType = projectileTypes[nextIndex];
+        currentProjectileData = projectileTypes[nextIndex];
         UpdateProjectileIcon();
         
-        Debug.Log($"Switched to projectile type: {currentProjectileType}");
+        // Update quantity display for the new projectile type
+        if (ProjectileInventory.Instance != null)
+        {
+            UpdateQuantityDisplay(currentProjectileData, ProjectileInventory.Instance.GetProjectileQuantity(currentProjectileData));
+        }
+        
+        Debug.Log($"Switched to projectile type: {currentProjectileData}");
     }
     
     private void UpdateProjectileIcon()
@@ -99,15 +137,13 @@ public class ProjectileSpawner : MonoBehaviour
         Sprite currentIcon = null;
         foreach (var data in projectilePrefabs)
         {
-            if (data.type == currentProjectileType)
+            if (data.type == currentProjectileData)
             {
                 currentIcon = data.icon;
                 currentProjectileIcon.sprite = currentIcon;
                 currentProjectileIcon.gameObject.SetActive(true);
                 
-                if (OnProjectileTypeChanged != null)
-                    OnProjectileTypeChanged(currentProjectileType, currentIcon);
-                    
+                OnProjectileTypeChanged?.Invoke(currentProjectileData, currentIcon);
                 return;
             }
         }
@@ -115,6 +151,56 @@ public class ProjectileSpawner : MonoBehaviour
         currentProjectileIcon.gameObject.SetActive(false);
     }
     
+    private void UpdateQuantityDisplay(ProjectileType data, int quantity)
+    {
+        // Only update if this is the current type
+        if (data != currentProjectileData || quantityText == null)
+            return;
+            
+        if (quantity == -1) // Unlimited
+        {
+            quantityText.text = "∞";
+        }
+        else
+        {
+            quantityText.text = quantity.ToString();
+        }
+    }
+    
+    // Getter for projectile data list (needed by ProjectileInventory)
+    public List<ProjectileData> GetProjectileDataList()
+    {
+        return projectilePrefabs;
+    }
+    
+    // Getter for the current projectile type's price
+    public int GetCurrentProjectilePrice()
+    {
+        foreach (var data in projectilePrefabs)
+        {
+            if (data.type == currentProjectileData)
+                return data.price;
+        }
+        return 0;
+    }
+    
+    // Getter for the current projectile type's name
+    public string GetCurrentProjectileName()
+    {
+        foreach (var data in projectilePrefabs)
+        {
+            if (data.type == currentProjectileData)
+                return data.displayName;
+        }
+        return currentProjectileData.ToString();
+    }
+    
+    public ProjectileData GetProjectileData(ProjectileType type)
+    {
+        return projectilePrefabs.Find(data => data.type == type);
+    }
+    
+    // Rest of your existing IsPointerOverInteractiveUI methods...
     private bool IsPointerOverInteractiveUI()
     {
         if (EventSystem.current == null)
