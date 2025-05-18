@@ -7,7 +7,6 @@ public class CurrencyDisplay : MonoBehaviour
     
     private void Start()
     {
-        // Subscribe to currency changes
         if (CurrencyManager.Instance != null)
         {
             CurrencyManager.Instance.OnCurrencyChanged += UpdateDisplay;
@@ -17,7 +16,6 @@ public class CurrencyDisplay : MonoBehaviour
     
     private void OnDestroy()
     {
-        // Unsubscribe when destroyed
         if (CurrencyManager.Instance != null)
             CurrencyManager.Instance.OnCurrencyChanged -= UpdateDisplay;
     }

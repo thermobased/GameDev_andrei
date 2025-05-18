@@ -31,39 +31,31 @@ public class StoreUI : MonoBehaviour
 
     private void Start()
     {
-        // Ensure we have references
         if (projectileSpawner == null)
             projectileSpawner = FindObjectOfType<ProjectileSpawner>();
-            
-        // Set up button events
+        
         if (openStoreButton != null)
             openStoreButton.onClick.AddListener(OpenStore);
             
         if (closeStoreButton != null)
             closeStoreButton.onClick.AddListener(CloseStore);
         
-        // Initially close the store
         if (storePanel != null)
             storePanel.SetActive(false);
-            
-        // Subscribe to currency changes
+        
         if (CurrencyManager.Instance != null)
             CurrencyManager.Instance.OnCurrencyChanged += UpdateCurrencyDisplay;
-            
-        // Initialize currency display
+        
         UpdateCurrencyDisplay(CurrencyManager.Instance.GetCurrentCurrency());
         
-        // Save default text color
         if (currencyText != null)
             defaultTextColor = currencyText.color;
-            
-        // Populate store items
+        
         PopulateStoreItems();
     }
     
     private void OnDestroy()
     {
-        // Unsubscribe when destroyed
         if (CurrencyManager.Instance != null)
             CurrencyManager.Instance.OnCurrencyChanged -= UpdateCurrencyDisplay;
             
@@ -72,8 +64,7 @@ public class StoreUI : MonoBehaviour
             
         if (closeStoreButton != null)
             closeStoreButton.onClick.RemoveListener(CloseStore);
-            
-        // Unsubscribe from store items
+        
         foreach (StoreItemUI item in storeItems)
         {
             if (item != null)
@@ -83,19 +74,16 @@ public class StoreUI : MonoBehaviour
     
     private void PopulateStoreItems()
     {
-        // Clear existing items
         foreach (Transform child in storeItemsContainer)
         {
             Destroy(child.gameObject);
         }
         storeItems.Clear();
         
-        // Get purchasable projectile types
         List<ProjectileType> purchasableTypes = ProjectileInventory.Instance.GetPurchasableProjectileTypes();
         
         foreach (ProjectileType type in purchasableTypes)
         {
-            // Get projectile data
             ProjectileData data = null;
             foreach (var projectileData in projectileSpawner.GetProjectileDataList())
             {
@@ -108,14 +96,12 @@ public class StoreUI : MonoBehaviour
             
             if (data == null)
                 continue;
-                
-            // Create store item
+            
             GameObject itemObject = Instantiate(storeItemPrefab, storeItemsContainer);
             StoreItemUI itemUI = itemObject.GetComponent<StoreItemUI>();
             
             if (itemUI != null)
             {
-                // Set up the item UI
                 itemUI.Setup(type, data.displayName, data.price, purchaseQuantity, data.icon);
                 itemUI.OnPurchaseClicked += TryPurchaseItem;
                 
@@ -131,8 +117,7 @@ public class StoreUI : MonoBehaviour
             
         if (storeCurrencyText != null)
             storeCurrencyText.text = currentCurrency.ToString();
-            
-        // Update store items purchase availability
+        
         foreach (StoreItemUI item in storeItems)
         {
             if (item != null)
@@ -144,12 +129,10 @@ public class StoreUI : MonoBehaviour
     {
         if (CurrencyManager.Instance.SpendCurrency(price))
         {
-            // Purchase successful, add projectiles
             ProjectileInventory.Instance.AddProjectile(data, quantity);
         }
         else
         {
-            // Flash currency text to indicate insufficient funds
             StartCoroutine(FlashInsufficientFunds());
         }
     }

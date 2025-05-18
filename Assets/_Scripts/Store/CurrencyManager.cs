@@ -35,13 +35,11 @@ public class CurrencyManager : MonoBehaviour
 
     private void Start()
     {
-        // Subscribe to enemy death events
         Enemy.onEnemyDeath += OnEnemyDefeated;
     }
 
     private void OnDestroy()
     {
-        // Unsubscribe when destroyed
         Enemy.onEnemyDeath -= OnEnemyDefeated;
         
         if (_instance == this)
@@ -52,7 +50,6 @@ public class CurrencyManager : MonoBehaviour
 
     private void OnEnemyDefeated(Enemy enemy)
     {
-        // Get the enemy data to access currency reward
         EnemyData enemyData = enemy.GetEnemyData();
         if (enemyData != null)
         {
@@ -81,7 +78,7 @@ public class CurrencyManager : MonoBehaviour
             return true;
         }
         
-        return false; // Not enough currency
+        return false;
     }
 
     public int GetCurrentCurrency()

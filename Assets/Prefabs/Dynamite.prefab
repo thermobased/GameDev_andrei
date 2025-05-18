@@ -102,17 +102,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 658e67bba9324b40aed076d5120d24b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageAmount: 65
+  damageAmount: 80.5
   effectPrefab: {fileID: 3919111000351753760, guid: d396a9041b724f244af2f9539455bdf5, type: 3}
   affectedLayers:
     serializedVersion: 2
     m_Bits: 136
   triggeredLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   projectileIcon: {fileID: -313834478943186941, guid: f2dce713305d33c4baa9ff6f4f3ee189, type: 3}
-  explosionRadius: -0.11
-  explosionForce: 12
+  explosionRadius: 5.83
+  explosionForce: 25.1
   upwardsModifier: 1
   fallSpeed: 6
   torqueForce: 15

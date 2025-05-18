@@ -39,13 +39,11 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
     }
     
-    // Add this method to access enemy data
     public EnemyData GetEnemyData()
     {
         return enemyData;
     }
     
-    // The rest of the Enemy class methods remain the same...
     
     public virtual void Die()
     {
@@ -57,13 +55,11 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         currentHealth -= damage;
         
-        // Show damage tint
         if (spriteRenderer != null)
         {
             StartCoroutine(FlashSprite());
         }
         
-        // Show damage text
         SpawnDamageText(damage);
         
         if (currentHealth <= 0)
@@ -74,16 +70,12 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     protected virtual IEnumerator FlashSprite()
     {
-        // Store the original color
         Color originalColor = spriteRenderer.color;
         
-        // Change to damage tint color
         spriteRenderer.color = damageTintColor;
         
-        // Wait for the specified duration
         yield return new WaitForSeconds(damageTintDuration);
         
-        // Restore original color
         spriteRenderer.color = originalColor;
     }
     
@@ -91,11 +83,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         if (damageTextPrefab != null)
         {
-            // Create the damage text at a slightly offset position from the enemy
             Vector3 spawnPosition = transform.position + new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), 0.5f, 0);
             GameObject damageTextObject = Instantiate(damageTextPrefab, spawnPosition, Quaternion.identity);
-            
-            // Set up the damage text
+
             DamageText damageText = damageTextObject.GetComponent<DamageText>();
             if (damageText != null)
             {
@@ -109,14 +99,5 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         enemyData = data;
         currentHealth = enemyData.maxHealth;
     }
-    
-    protected virtual void Start()
-    {
-        // Start implementation for derived classes
-    }
-    
-    protected virtual void Update()
-    {
-        // Update implementation for derived classes
-    }
+
 }

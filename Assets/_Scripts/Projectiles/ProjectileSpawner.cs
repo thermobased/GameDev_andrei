@@ -39,20 +39,17 @@ public class ProjectileSpawner : MonoBehaviour
             }
         }
         
-        // Subscribe to inventory quantity changes
         if (ProjectileInventory.Instance != null)
         {
             ProjectileInventory.Instance.OnProjectileQuantityChanged += UpdateQuantityDisplay;
         }
-            
-        // Set initial UI
+        
         UpdateProjectileIcon();
         UpdateQuantityDisplay(currentProjectileData, ProjectileInventory.Instance?.GetProjectileQuantity(currentProjectileData) ?? 0);
     }
     
     private void OnDestroy()
     {
-        // Unsubscribe from events
         if (ProjectileInventory.Instance != null)
         {
             ProjectileInventory.Instance.OnProjectileQuantityChanged -= UpdateQuantityDisplay;
@@ -77,7 +74,6 @@ public class ProjectileSpawner : MonoBehaviour
 
     private void SpawnProjectile()
     {
-        // Check if we can use this projectile from inventory
         if (ProjectileInventory.Instance != null && 
             !ProjectileInventory.Instance.UseProjectile(currentProjectileData))
         {
@@ -120,7 +116,6 @@ public class ProjectileSpawner : MonoBehaviour
         currentProjectileData = projectileTypes[nextIndex];
         UpdateProjectileIcon();
         
-        // Update quantity display for the new projectile type
         if (ProjectileInventory.Instance != null)
         {
             UpdateQuantityDisplay(currentProjectileData, ProjectileInventory.Instance.GetProjectileQuantity(currentProjectileData));
@@ -153,11 +148,10 @@ public class ProjectileSpawner : MonoBehaviour
     
     private void UpdateQuantityDisplay(ProjectileType data, int quantity)
     {
-        // Only update if this is the current type
         if (data != currentProjectileData || quantityText == null)
             return;
             
-        if (quantity == -1) // Unlimited
+        if (quantity == -1)
         {
             quantityText.text = "∞";
         }
@@ -167,13 +161,11 @@ public class ProjectileSpawner : MonoBehaviour
         }
     }
     
-    // Getter for projectile data list (needed by ProjectileInventory)
     public List<ProjectileData> GetProjectileDataList()
     {
         return projectilePrefabs;
     }
     
-    // Getter for the current projectile type's price
     public int GetCurrentProjectilePrice()
     {
         foreach (var data in projectilePrefabs)
@@ -184,7 +176,6 @@ public class ProjectileSpawner : MonoBehaviour
         return 0;
     }
     
-    // Getter for the current projectile type's name
     public string GetCurrentProjectileName()
     {
         foreach (var data in projectilePrefabs)
@@ -200,7 +191,6 @@ public class ProjectileSpawner : MonoBehaviour
         return projectilePrefabs.Find(data => data.type == type);
     }
     
-    // Rest of your existing IsPointerOverInteractiveUI methods...
     private bool IsPointerOverInteractiveUI()
     {
         if (EventSystem.current == null)
