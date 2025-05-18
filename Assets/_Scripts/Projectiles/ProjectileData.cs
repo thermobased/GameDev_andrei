@@ -4,7 +4,8 @@ using UnityEngine.Serialization;
 public enum ProjectileType
 {
     Bomb,
-    Nuke
+    Nuke,
+    Dynamite
 }
 
 [System.Serializable]
@@ -13,8 +14,8 @@ public class ProjectileData
     public ProjectileType type;
     public GameObject prefab;
     public Sprite icon;
-    public int price; // Cost to purchase
-    public int initialQuantity; // Starting quantity
-    public bool isUnlimited; // For basic projectiles
-    public string displayName; // User-friendly name
+    public int price;
+    public int initialQuantity;
+    public bool isUnlimited;
+    public string displayName;
 }
