@@ -19,15 +19,13 @@ public class ProjectileUIManager : MonoBehaviour
     
     private void Start()
     {
-        // Ensure we have references
         if (spawner == null)
             spawner = FindObjectOfType<ProjectileSpawner>();
             
         if (spawner != null)
         {
             spawner.OnProjectileTypeChanged += UpdateUI;
-
-            // Add this to update the UI initially
+            
             var type = ProjectileInventory.Instance.GetProjectileType();
             var data = spawner.GetProjectileData(type);
             UpdateUI(type, data.icon);
@@ -46,7 +44,6 @@ public class ProjectileUIManager : MonoBehaviour
             }
         }
         
-        // Subscribe to projectile inventory changes
         if (ProjectileInventory.Instance != null)
         {
             ProjectileInventory.Instance.OnProjectileQuantityChanged += OnProjectileQuantityChanged;
@@ -57,14 +54,12 @@ public class ProjectileUIManager : MonoBehaviour
             );
         }
         
-        // Initial UI update
         UpdateProjectileQuantity(ProjectileInventory.Instance.GetProjectileType(), 
                                 ProjectileInventory.Instance.GetProjectileQuantity(ProjectileInventory.Instance.GetProjectileType()));
     }
     
     private void OnDestroy()
     {
-        // Unsubscribe when destroyed
         if (ProjectileInventory.Instance != null)
             ProjectileInventory.Instance.OnProjectileQuantityChanged -= OnProjectileQuantityChanged;
     }
@@ -83,7 +78,7 @@ public class ProjectileUIManager : MonoBehaviour
         {
             if (data == ProjectileType.Bomb)
             {
-                quantityText.text = "∞"; // Infinity symbol for unlimited basic projectiles
+                quantityText.text = "∞";
             }
             else
             {
@@ -105,7 +100,6 @@ public class ProjectileUIManager : MonoBehaviour
             }
         }
         
-        // Update the quantity display
         UpdateProjectileQuantity(data, ProjectileInventory.Instance.GetProjectileQuantity(data));
     }
     
