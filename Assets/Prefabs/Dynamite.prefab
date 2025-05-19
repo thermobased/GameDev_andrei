@@ -109,7 +109,7 @@ MonoBehaviour:
     m_Bits: 136
   triggeredLayers:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
   projectileIcon: {fileID: -313834478943186941, guid: f2dce713305d33c4baa9ff6f4f3ee189, type: 3}
   explosionRadius: 5.83
   explosionForce: 25.1
