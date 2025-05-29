@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -14,23 +15,24 @@ public class ProjectileUIManager : MonoBehaviour
     [SerializeField] private bool preserveAspectRatio = true;
     [SerializeField] private bool centerIcon = true;
     
-    [Header("References")]
-    [SerializeField] private ProjectileSpawner spawner;
+    private List<ProjectileType> availableProjectiles = new List<ProjectileType>();
+    private int currentProjectileIndex = 0;
     
     private void Start()
     {
-        if (spawner == null)
-            spawner = FindObjectOfType<ProjectileSpawner>();
-            
-        if (spawner != null)
-        {
-            spawner.OnProjectileTypeChanged += UpdateUI;
-            
-            var type = ProjectileInventory.Instance.GetProjectileType();
-            var data = spawner.GetProjectileData(type);
-            UpdateUI(type, data.icon);
-        }
-        
+        SetupUI();
+        SubscribeToEvents();
+        InitializeAvailableProjectiles();
+        UpdateUIForCurrentProjectile();
+    }
+    
+    private void OnDestroy()
+    {
+        UnsubscribeFromEvents();
+    }
+
+    private void SetupUI()
+    {
         if (projectileIcon != null)
         {
             projectileIcon.preserveAspect = preserveAspectRatio;
@@ -43,51 +45,79 @@ public class ProjectileUIManager : MonoBehaviour
                 rectTransform.pivot = new Vector2(0.5f, 0.5f);
             }
         }
-        
-        if (ProjectileInventory.Instance != null)
-        {
-            ProjectileInventory.Instance.OnProjectileQuantityChanged += OnProjectileQuantityChanged;
 
-            UpdateProjectileQuantity(
-                ProjectileInventory.Instance.GetProjectileType(),
-                ProjectileInventory.Instance.GetProjectileQuantity(ProjectileInventory.Instance.GetProjectileType())
-            );
+        if (switchButton != null)
+        {
+            switchButton.onClick.AddListener(SwitchToNextProjectile);
+        }
+    }
+
+    private void SubscribeToEvents()
+    {
+        Inventory.OnProjectileQuantityChanged += OnProjectileQuantityChanged;
+        Inventory.OnCurrentProjectileChanged += OnCurrentProjectileChanged;
+    }
+
+    private void UnsubscribeFromEvents()
+    {
+        Inventory.OnProjectileQuantityChanged -= OnProjectileQuantityChanged;
+        Inventory.OnCurrentProjectileChanged -= OnCurrentProjectileChanged;
+    }
+
+    private void InitializeAvailableProjectiles()
+    {
+        if (Inventory.Instance == null) return;
+        
+        var allProjectiles = Inventory.Instance.GetAllProjectileData();
+        availableProjectiles.Clear();
+        
+        foreach (var projectile in allProjectiles)
+        {
+            availableProjectiles.Add(projectile.type);
         }
         
-        UpdateProjectileQuantity(ProjectileInventory.Instance.GetProjectileType(), 
-                                ProjectileInventory.Instance.GetProjectileQuantity(ProjectileInventory.Instance.GetProjectileType()));
+        var currentType = Inventory.Instance.GetCurrentProjectileType();
+        currentProjectileIndex = availableProjectiles.IndexOf(currentType);
+        if (currentProjectileIndex == -1) currentProjectileIndex = 0;
     }
-    
-    private void OnDestroy()
+
+    private void SwitchToNextProjectile()
     {
-        if (ProjectileInventory.Instance != null)
-            ProjectileInventory.Instance.OnProjectileQuantityChanged -= OnProjectileQuantityChanged;
+        if (availableProjectiles.Count == 0 || Inventory.Instance == null) return;
+        
+        currentProjectileIndex = (currentProjectileIndex + 1) % availableProjectiles.Count;
+        var newProjectileType = availableProjectiles[currentProjectileIndex];
+        
+        Inventory.Instance.SetCurrentProjectileType(newProjectileType);
     }
-    
-    private void OnProjectileQuantityChanged(ProjectileType data, int quantity)
+
+    private void OnCurrentProjectileChanged(ProjectileType newType)
     {
-        if (data == ProjectileInventory.Instance.GetCurrentProjectileType())
+        UpdateUIForCurrentProjectile();
+    }
+
+    private void OnProjectileQuantityChanged(ProjectileType type, int quantity)
+    {
+        if (type == Inventory.Instance.GetCurrentProjectileType())
         {
-            UpdateProjectileQuantity(data, quantity);
+            UpdateProjectileQuantity(type, quantity);
         }
     }
     
-    private void UpdateProjectileQuantity(ProjectileType data, int quantity)
+    private void UpdateUIForCurrentProjectile()
     {
-        if (quantityText != null)
+        if (Inventory.Instance == null) return;
+        
+        var currentType = Inventory.Instance.GetCurrentProjectileType();
+        var projectileData = Inventory.Instance.GetProjectileData(currentType);
+        
+        if (projectileData != null)
         {
-            if (data == ProjectileType.Bomb)
-            {
-                quantityText.text = "∞";
-            }
-            else
-            {
-                quantityText.text = quantity.ToString();
-            }
+            UpdateUI(currentType, projectileData.icon);
         }
     }
     
-    public void UpdateUI(ProjectileType data, Sprite icon)
+    public void UpdateUI(ProjectileType type, Sprite icon)
     {
         if (projectileIcon != null && icon != null)
         {
@@ -100,7 +130,24 @@ public class ProjectileUIManager : MonoBehaviour
             }
         }
         
-        UpdateProjectileQuantity(data, ProjectileInventory.Instance.GetProjectileQuantity(data));
+        var quantity = Inventory.Instance.GetProjectileQuantity(type);
+        UpdateProjectileQuantity(type, quantity);
+    }
+    
+    private void UpdateProjectileQuantity(ProjectileType type, int quantity)
+    {
+        if (quantityText != null)
+        {
+            var projectileData = Inventory.Instance.GetProjectileData(type);
+            if (projectileData != null && projectileData.isUnlimited)
+            {
+                quantityText.text = "∞";
+            }
+            else
+            {
+                quantityText.text = quantity.ToString();
+            }
+        }
     }
     
     private void ResizeIconToFit(Sprite icon)

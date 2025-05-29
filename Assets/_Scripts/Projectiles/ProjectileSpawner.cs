@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,57 +8,37 @@ using UnityEngine.Serialization;
 
 public class ProjectileSpawner : MonoBehaviour
 {
-    [Header("Projectile Settings")]
-    [SerializeField] private List<ProjectileData> projectilePrefabs = new List<ProjectileData>();
-    [SerializeField] private ProjectileType currentProjectileData = ProjectileType.Bomb;
+    [Header("Spawn Settings")]
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private LayerMask spawnLayerMask = -1;
     
-    [Header("References")]
-    [SerializeField] private Camera mainCamera;
-    [SerializeField] private Button switchProjectileButton;
-    [SerializeField] private Image currentProjectileIcon;
-    [SerializeField] private TextMeshProUGUI quantityText;
-    
-    [Header("UI Settings")]
-    [SerializeField] private bool ignoreFullscreenCanvas = true;
-    [SerializeField] private List<RectTransform> uiElementsToCheck = new List<RectTransform>();
-    
-    public System.Action<ProjectileType, Sprite> OnProjectileTypeChanged;
-    
+    public event Action<ProjectileType, Sprite> OnProjectileTypeChanged;
+
     private void Start()
     {
-        if (mainCamera == null)
-            mainCamera = Camera.main;
+        if (playerCamera == null)
+            playerCamera = Camera.main;
         
-        if (switchProjectileButton != null)
+        Inventory.OnCurrentProjectileChanged += HandleCurrentProjectileChanged;
+        
+        if (Inventory.Instance != null)
         {
-            switchProjectileButton.onClick.AddListener(SwitchProjectileType);
-            
-            RectTransform buttonRect = switchProjectileButton.GetComponent<RectTransform>();
-            if (buttonRect != null && !uiElementsToCheck.Contains(buttonRect))
-            {
-                uiElementsToCheck.Add(buttonRect);
-            }
+            var currentType = Inventory.Instance.GetCurrentProjectileType();
+            HandleCurrentProjectileChanged(currentType);
         }
-        
-        if (ProjectileInventory.Instance != null)
-        {
-            ProjectileInventory.Instance.OnProjectileQuantityChanged += UpdateQuantityDisplay;
-        }
-        
-        UpdateProjectileIcon();
-        UpdateQuantityDisplay(currentProjectileData, ProjectileInventory.Instance?.GetProjectileQuantity(currentProjectileData) ?? 0);
     }
-    
+
     private void OnDestroy()
     {
-        if (ProjectileInventory.Instance != null)
+        Inventory.OnCurrentProjectileChanged -= HandleCurrentProjectileChanged;
+    }
+
+    private void HandleCurrentProjectileChanged(ProjectileType newType)
+    {
+        var projectileData = Inventory.Instance.GetProjectileData(newType);
+        if (projectileData != null)
         {
-            ProjectileInventory.Instance.OnProjectileQuantityChanged -= UpdateQuantityDisplay;
-        }
-        
-        if (switchProjectileButton != null)
-        {
-            switchProjectileButton.onClick.RemoveListener(SwitchProjectileType);
+            OnProjectileTypeChanged?.Invoke(newType, projectileData.icon);
         }
     }
 
@@ -65,204 +46,60 @@ public class ProjectileSpawner : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (!IsPointerOverInteractiveUI())
-            {
-                SpawnProjectile();
-            }
+            HandleMouseClick();
         }
     }
 
-    private void SpawnProjectile()
+    private void HandleMouseClick()
     {
-        if (ProjectileInventory.Instance != null && 
-            !ProjectileInventory.Instance.UseProjectile(currentProjectileData))
+        if (Inventory.Instance == null || playerCamera == null)
+            return;
+        
+        if (EventSystem.current.IsPointerOverGameObject())
         {
-            Debug.Log($"Not enough {currentProjectileData} projectiles!");
             return;
         }
-        
-        Vector3 mousePos = Input.mousePosition;
-        Vector3 worldPosition = mainCamera.ScreenToWorldPoint(mousePos);
-        worldPosition.z = 0;
-        
-        GameObject prefabToSpawn = GetCurrentProjectilePrefab();
-        if (prefabToSpawn != null)
+
+        Vector3 mousePosition = Input.mousePosition;
+        Ray ray = playerCamera.ScreenPointToRay(mousePosition);
+    
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, spawnLayerMask))
         {
-            Instantiate(prefabToSpawn, worldPosition, Quaternion.identity);
+            SpawnProjectileAtPosition(hit.point);
         }
         else
         {
-            Debug.LogWarning($"No prefab found for projectile type: {currentProjectileData}");
+            Vector3 spawnPoint = ray.origin + ray.direction * 10f;
+            SpawnProjectileAtPosition(spawnPoint);
         }
     }
-    
-    private GameObject GetCurrentProjectilePrefab()
+
+    private void SpawnProjectileAtPosition(Vector3 position)
     {
-        foreach (var data in projectilePrefabs)
+        var currentType = Inventory.Instance.GetCurrentProjectileType();
+        
+        if (!Inventory.Instance.CanUseProjectile(currentType))
         {
-            if (data.type == currentProjectileData)
-                return data.prefab;
-        }
-        return null;
-    }
-    
-    private void SwitchProjectileType()
-    {
-        ProjectileType[] projectileTypes = (ProjectileType[])System.Enum.GetValues(typeof(ProjectileType));
-        
-        int currentIndex = (int)currentProjectileData;
-        int nextIndex = (currentIndex + 1) % projectileTypes.Length;
-        
-        currentProjectileData = projectileTypes[nextIndex];
-        UpdateProjectileIcon();
-        
-        if (ProjectileInventory.Instance != null)
-        {
-            UpdateQuantityDisplay(currentProjectileData, ProjectileInventory.Instance.GetProjectileQuantity(currentProjectileData));
-        }
-        
-        Debug.Log($"Switched to projectile type: {currentProjectileData}");
-    }
-    
-    private void UpdateProjectileIcon()
-    {
-        if (currentProjectileIcon == null)
+            Debug.Log($"Cannot use projectile {currentType} - insufficient quantity or not available");
             return;
-        
-        Sprite currentIcon = null;
-        foreach (var data in projectilePrefabs)
-        {
-            if (data.type == currentProjectileData)
-            {
-                currentIcon = data.icon;
-                currentProjectileIcon.sprite = currentIcon;
-                currentProjectileIcon.gameObject.SetActive(true);
-                
-                OnProjectileTypeChanged?.Invoke(currentProjectileData, currentIcon);
-                return;
-            }
         }
-        
-        currentProjectileIcon.gameObject.SetActive(false);
-    }
-    
-    private void UpdateQuantityDisplay(ProjectileType data, int quantity)
-    {
-        if (data != currentProjectileData || quantityText == null)
+
+        var projectileData = Inventory.Instance.GetProjectileData(currentType);
+        if (projectileData?.prefab == null)
+        {
+            Debug.LogError($"No prefab found for projectile type {currentType}");
             return;
-            
-        if (quantity == -1)
-        {
-            quantityText.text = "∞";
         }
-        else
+        
+        if (Inventory.Instance.UseProjectile(currentType))
         {
-            quantityText.text = quantity.ToString();
+            GameObject spawnedProjectile = Instantiate(projectileData.prefab, position, Quaternion.identity);
+            Debug.Log($"Spawned {currentType} at {position}");
         }
     }
-    
-    public List<ProjectileData> GetProjectileDataList()
-    {
-        return projectilePrefabs;
-    }
-    
-    public int GetCurrentProjectilePrice()
-    {
-        foreach (var data in projectilePrefabs)
-        {
-            if (data.type == currentProjectileData)
-                return data.price;
-        }
-        return 0;
-    }
-    
-    public string GetCurrentProjectileName()
-    {
-        foreach (var data in projectilePrefabs)
-        {
-            if (data.type == currentProjectileData)
-                return data.displayName;
-        }
-        return currentProjectileData.ToString();
-    }
-    
+
     public ProjectileData GetProjectileData(ProjectileType type)
     {
-        return projectilePrefabs.Find(data => data.type == type);
-    }
-    
-    private bool IsPointerOverInteractiveUI()
-    {
-        if (EventSystem.current == null)
-            return false;
-            
-        PointerEventData eventData = new PointerEventData(EventSystem.current);
-        eventData.position = Input.mousePosition;
-        
-        List<RaycastResult> results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, results);
-        
-        if (results.Count == 0)
-            return false;
-        
-        if (ignoreFullscreenCanvas)
-        {
-            foreach (RaycastResult result in results)
-            {
-                if (uiElementsToCheck.Count > 0)
-                {
-                    RectTransform resultRect = result.gameObject.GetComponent<RectTransform>();
-
-                    if (resultRect != null && IsInteractiveUIElement(result.gameObject))
-                    {
-                        foreach (RectTransform uiElement in uiElementsToCheck)
-                        {
-                            if (resultRect == uiElement || IsChildOf(resultRect, uiElement))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-                else if (IsInteractiveUIElement(result.gameObject))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        
-        return true;
-    }
-    
-    private bool IsInteractiveUIElement(GameObject obj)
-    {
-        // Check for common interactive UI components
-        if (obj.GetComponent<Button>() != null ||
-            obj.GetComponent<Toggle>() != null ||
-            obj.GetComponent<Slider>() != null ||
-            obj.GetComponent<Dropdown>() != null ||
-            obj.GetComponent<InputField>() != null ||
-            obj.GetComponent<ScrollRect>() != null)
-        {
-            return true;
-        }
-        
-        return false;
-    }
-    
-    private bool IsChildOf(RectTransform child, RectTransform parent)
-    {
-        Transform current = child.parent;
-        while (current != null)
-        {
-            if (current == parent)
-                return true;
-                
-            current = current.parent;
-        }
-        
-        return false;
+        return Inventory.Instance?.GetProjectileData(type);
     }
 }
