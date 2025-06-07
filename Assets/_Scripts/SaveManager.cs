@@ -1,7 +1,6 @@
-/*using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using System.Xml;
 using Newtonsoft.Json;
 
 public static class SaveManager
@@ -10,7 +9,7 @@ public static class SaveManager
 
     public static void SaveData(InventoryData data)
     {
-        string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+        string json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
         File.WriteAllText(SavePath, json);
     }
 
@@ -24,8 +23,9 @@ public static class SaveManager
 
         return new InventoryData
         {
-            coins = 0,
-            PurchasedItems = new Dictionary<string, bool>()
+            coins = 100,
+            ProjectileAmounts = new Dictionary<ProjectileType, int>(),
+            currentProjectileType = ProjectileType.Bomb
         };
     }
-}*/
+}

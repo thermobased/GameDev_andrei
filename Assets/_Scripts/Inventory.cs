@@ -31,12 +31,14 @@ public class Inventory : MonoBehaviour
 
     private void InitializeData()
     {
-        _data = new InventoryData();
+        _data = SaveManager.LoadData();
         
         foreach (var projectileData in allProjectileData)
         {
-            _data.ProjectileAmounts[projectileData.type] = projectileData.initialQuantity;
+            if (!_data.ProjectileAmounts.ContainsKey(projectileData.type))
+                _data.ProjectileAmounts[projectileData.type] = projectileData.initialQuantity;
         }
+        SaveManager.SaveData(_data);
     }
 
     private void Start()
@@ -59,6 +61,7 @@ public class Inventory : MonoBehaviour
         ChangeProjectileQuantity(item.type, item.soldAmount);
         
         OnCoinsChanged?.Invoke(Coins);
+        SaveManager.SaveData(_data);
         return true;
     }
 
@@ -69,6 +72,7 @@ public class Inventory : MonoBehaviour
             
         _data.ProjectileAmounts[type] += amount;
         OnProjectileQuantityChanged?.Invoke(type, _data.ProjectileAmounts[type]);
+        SaveManager.SaveData(_data);
     }
 
     public int GetProjectileQuantity(ProjectileType type)
@@ -85,6 +89,7 @@ public class Inventory : MonoBehaviour
     {
         _data.currentProjectileType = type;
         OnCurrentProjectileChanged?.Invoke(type);
+        SaveManager.SaveData(_data);
     }
 
     public bool CanUseProjectile(ProjectileType type)
@@ -136,13 +141,11 @@ public class Inventory : MonoBehaviour
         int reward = enemy.GetEnemyData().currencyReward;
         _data.coins += reward;
         OnCoinsChanged?.Invoke(Coins);
+        SaveManager.SaveData(_data);
     }
 
-    
-    
     private void OnApplicationQuit()
     {
-        //SaveManager.SaveData(_data);
+        SaveManager.SaveData(_data);
     }
-    
 }
