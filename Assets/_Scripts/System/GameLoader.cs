@@ -10,15 +10,23 @@ public class GameLoader
     public static void AutostartGame()
     {
         _instance = new GameLoader();
-        /*_ = _instance.RunGame();*/
+        _ = RunGame();
     }
 
+    public static async Task RunGame()
+    {
+        await LoadSceneAsync(Scenes.MAIN_MENU);
+    }
+
+    public static void LoadMainMenu()
+    {
+        _ = LoadSceneAsync(Scenes.MAIN_MENU);
+    }
     public static async Task LoadSceneAsync(string targetScene)
     {
         Time.timeScale = 1f;
         ShowLoading();
         
-        await Task.Delay(1000);
         
         var bootOperation = SceneManager.LoadSceneAsync(Scenes.BOOT);
         while (!bootOperation.isDone)
@@ -31,6 +39,12 @@ public class GameLoader
 
         HideLoading();
     }
+    public static void LoadGameplay()
+    {
+        _ = LoadSceneAsync(Scenes.GAMEPLAY);
+    }
+
+
 
     public GameLoader()
     {
